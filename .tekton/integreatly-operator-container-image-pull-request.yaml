@@ -29,6 +29,10 @@ spec:
     value: 5d
   - name: dockerfile
     value: Containerfile.integreatly-operator
+  - name: prefetch-input
+    value: '{"type": "gomod", "path": "integreatly-operator/"}'
+  - name: hermetic
+    value: "true"
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
