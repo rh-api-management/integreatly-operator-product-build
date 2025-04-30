@@ -26,9 +26,6 @@ COPY integreatly-operator/pkg/ pkg/
 COPY integreatly-operator/version/ version/
 COPY integreatly-operator/utils/ utils/
 COPY integreatly-operator/LICENSE licenses/
-COPY integreatly-operator/templates /templates
-COPY integreatly-operator/manifests /manifests
-COPY integreatly-operator/products /products
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o rhmi-operator main.go
@@ -54,6 +51,10 @@ LABEL io.k8s.display-name="Integreatly Operator" \
       io.openshift.expose-services="" \
       io.openshift.tags="integreatly-operator" \
       io.k8s.description="A Kubernetes Operator based on the Operator SDK for installing and reconciling managed products"
+
+COPY integreatly-operator/templates /templates
+COPY integreatly-operator/manifests /manifests
+COPY integreatly-operator/products /products
 
 RUN /usr/local/bin/user_setup
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
