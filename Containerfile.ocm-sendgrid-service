@@ -1,0 +1,46 @@
+# Konflux build for ocm-sendgrid-service
+FROM registry.redhat.io/ubi9/go-toolset:9.6 AS builder
+
+USER root
+
+# Drift detection: compare upstream Dockerfile with cached copy
+COPY drift-detection/detector.sh /detector.sh
+COPY drift-cache /drift-cache
+COPY ocm-sendgrid-service/Dockerfile ./Dockerfile
+RUN /detector.sh ./Dockerfile /drift-cache/ocm-sendgrid-service/Dockerfile
+
+WORKDIR /workspace
+
+# Copy go module manifests
+COPY ocm-sendgrid-service/go.mod go.mod
+COPY ocm-sendgrid-service/go.sum go.sum
+
+# Copy vendored deps and source
+COPY ocm-sendgrid-service/vendor/ vendor/
+COPY ocm-sendgrid-service/cmd/ cmd/
+COPY ocm-sendgrid-service/pkg/ pkg/
+COPY ocm-sendgrid-service/data/ data/
+
+# Build
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on \
+    go build -mod=vendor -a -o ocm-sendgrid-service ./cmd/ocm-sendgrid-service
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+
+ENV USER_UID=1001 \
+    USER_NAME=ocm-sendgrid-service
+
+COPY --from=builder /workspace/ocm-sendgrid-service /usr/local/bin/ocm-sendgrid-service
+
+EXPOSE 8000
+
+ENTRYPOINT ["/usr/local/bin/ocm-sendgrid-service", "serve"]
+
+LABEL name="ocm-sendgrid-service" \
+      vendor="Red Hat" \
+      summary="OCM Sendgrid Service" \
+      description="OCM Sendgrid Service"
+
+USER ${USER_UID}
+
+
