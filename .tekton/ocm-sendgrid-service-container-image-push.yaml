@@ -21,7 +21,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/api-management-tenant/ocm-sendgrid-service-container-image:{{revision}}
+    value: quay.io/vmogilev_rhmi/ocm-sendgrid-service-container-image:{{revision}}
   - name: path-context
     value: .
   - name: dockerfile
